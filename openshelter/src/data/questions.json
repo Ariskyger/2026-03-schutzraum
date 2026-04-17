@@ -1,0 +1,83 @@
+{
+  "startId": "q1",
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Hat das Gebäude mehrere Stockwerke?",
+      "nextIfTrue": "q2",
+      "nextIfFalse": "q5"
+    },
+    {
+      "id": "q2",
+      "question": "Gibt es mehr als 2 Stockwerke über Ihnen?",
+      "nextIfTrue": "q3",
+      "nextIfFalse": "q3"
+    },
+    {
+      "id": "q3",
+      "question": "Gibt es einen Raum ohne Sicht nach außen?",
+      "nextIfTrue": "q4",
+      "nextIfFalse": "result-no-room"
+    },
+    {
+      "id": "q4",
+      "question": "Hat dieser Raum eine Außenwand?",
+      "nextIfTrue": "result-outer-wall",
+      "nextIfFalse": "result-inner-room"
+    },
+    {
+      "id": "q5",
+      "question": "Haben Sie einen Keller?",
+      "nextIfTrue": "q6",
+      "nextIfFalse": "q7"
+    },
+    {
+      "id": "q6",
+      "question": "Ist der Keller vollständig unterirdisch?",
+      "nextIfTrue": "result-basement",
+      "nextIfFalse": "q7"
+    },
+    {
+      "id": "q7",
+      "question": "Gibt es einen Raum ohne Sicht nach außen?",
+      "nextIfTrue": "q8",
+      "nextIfFalse": "result-no-room"
+    },
+    {
+      "id": "q8",
+      "question": "Hat der Raum eine Wand, die nicht vollständig unterirdisch ist?",
+      "nextIfTrue": "result-partial-underground",
+      "nextIfFalse": "result-underground-room"
+    },
+    {
+      "id": "result-inner-room",
+      "question": null,
+      "result": "Ein innenliegender Raum ohne Außenwand eignet sich gut als Schutzraum."
+    },
+    {
+      "id": "result-outer-wall",
+      "question": null,
+      "result": "Der Raum hat eine Außenwand. Zusätzliche Schutzmaßnahmen sind empfehlenswert."
+    },
+    {
+      "id": "result-basement",
+      "question": null,
+      "result": "Ein vollständig unterirdischer Keller bietet optimalen Schutz."
+    },
+    {
+      "id": "result-no-room",
+      "question": null,
+      "result": "Es wurde kein geeigneter Raum ohne Sicht nach außen gefunden. Weitere Beratung wird empfohlen."
+    },
+    {
+      "id": "result-partial-underground",
+      "question": null,
+      "result": "Der Raum ist teilweise unterirdisch. Zusätzliche Abdichtung der nicht-unterirdischen Wand wird empfohlen."
+    },
+    {
+      "id": "result-underground-room",
+      "question": null,
+      "result": "Ein vollständig unterirdischer Raum ohne Sicht nach außen eignet sich hervorragend als Schutzraum."
+    }
+  ]
+}
