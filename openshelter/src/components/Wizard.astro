@@ -1,0 +1,202 @@
+---
+import questionsData from "../data/questions.json";
+
+const questions = questionsData.questions.filter((q) => q.question !== null);
+const results = questionsData.questions.filter((q) => q.question === null);
+const startId = questionsData.startId;
+---
+
+<div class="wizard" data-start-id={startId}>
+  <div class="step-indicator">
+    <span class="step-label">Schritt <span class="step-current">1</span></span>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  {questions.map((q) => (
+    <div
+      class="wizard-question hidden"
+      data-id={q.id}
+      data-next-true={q.nextIfTrue}
+      data-next-false={q.nextIfFalse}
+    >
+      <div class="question-container">
+        <h2>{q.question}</h2>
+        <div class="wizard-actions">
+          <button class="btn btn-primary wizard-yes">Ja</button>
+          <button class="btn btn-secondary wizard-no">Nein</button>
+        </div>
+      </div>
+    </div>
+  ))}
+
+  {results.map((r) => (
+    <div class="wizard-result hidden" data-id={r.id}>
+      <div class="question-container">
+        <h2>Ergebnis</h2>
+        <p class="result-text">{r.result}</p>
+        <div class="wizard-actions">
+          <button class="btn btn-secondary wizard-restart">Neu starten</button>
+        </div>
+      </div>
+    </div>
+  ))}
+
+  <div class="wizard-back-row hidden">
+    <button class="btn btn-secondary wizard-back">Zurück</button>
+  </div>
+</div>
+
+<script>
+  const wizard = document.querySelector('.wizard') as HTMLElement;
+  const startId = wizard.dataset.startId!;
+  const history: string[] = [];
+  const stepLabel = wizard.querySelector('.step-current') as HTMLElement;
+  const progressFill = wizard.querySelector('.progress-fill') as HTMLElement;
+  const backRow = wizard.querySelector('.wizard-back-row') as HTMLElement;
+  const totalQuestions = wizard.querySelectorAll('.wizard-question').length;
+
+  function showQuestion(id: string) {
+    wizard.querySelectorAll('.wizard-question, .wizard-result').forEach((el) => {
+      el.classList.add('hidden');
+    });
+
+    const target = wizard.querySelector(`[data-id="${id}"]`);
+    if (target) {
+      target.classList.remove('hidden');
+    }
+
+    const step = history.length + 1;
+    stepLabel.textContent = String(step);
+    progressFill.style.width = `${(step / totalQuestions) * 100}%`;
+
+    if (history.length > 0) {
+      backRow.classList.remove('hidden');
+    } else {
+      backRow.classList.add('hidden');
+    }
+  }
+
+  function goBack() {
+    if (history.length === 0) return;
+    const prevId = history.pop()!;
+    showQuestion(prevId);
+  }
+
+  function restart() {
+    history.length = 0;
+    showQuestion(startId);
+  }
+
+  // Ja/Nein Buttons
+  wizard.querySelectorAll('.wizard-question').forEach((questionEl) => {
+    const yesBtn = questionEl.querySelector('.wizard-yes');
+    const noBtn = questionEl.querySelector('.wizard-no');
+    const el = questionEl as HTMLElement;
+
+    yesBtn?.addEventListener('click', () => {
+      history.push(el.dataset.id!);
+      showQuestion(el.dataset.nextTrue!);
+    });
+
+    noBtn?.addEventListener('click', () => {
+      history.push(el.dataset.id!);
+      showQuestion(el.dataset.nextFalse!);
+    });
+  });
+
+  // Zurück
+  wizard.querySelector('.wizard-back')?.addEventListener('click', goBack);
+
+  // Neu starten
+  wizard.querySelectorAll('.wizard-restart').forEach((btn) => {
+    btn.addEventListener('click', restart);
+  });
+
+  // Start
+  showQuestion(startId);
+</script>
+
+<style>
+  .wizard {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  .step-indicator {
+    margin-bottom: 1.5rem;
+  }
+
+  .step-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--d-draeger-darkblue);
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--d-draeger-background-coolgray);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--d-draeger-airblue);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .question-container {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .question-container h2 {
+    margin-top: 0;
+    color: var(--d-draeger-darkblue);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-text {
+    color: var(--d-draeger-default-text);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin: 0 0 1.5rem;
+  }
+
+  .wizard-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .wizard-back-row {
+    margin-top: 1rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .wizard {
+      padding: 0 0.5rem;
+    }
+
+    .question-container {
+      padding: 1.5rem;
+    }
+  }
+</style>
