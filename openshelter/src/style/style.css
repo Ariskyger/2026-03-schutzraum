@@ -1,0 +1,32 @@
+:root {
+    --d-draeger-red-hover-btn: #ff7272;
+    --d-draeger-white: #ffffff;
+    --d-draeger-black: #000000;
+    --d-draeger-darkgray: #344351;
+    --d-draeger-darkblue: #002766;
+    --d-draeger-soft-darkblue: #7698cf;
+    --d-draeger-airblue: #0091f7;
+    --d-draeger-lightblue: #6ecdff;
+    --d-draeger-soft-light-blue: #6eccff83;
+    --d-draeger-darkgreen: #00851D;
+    --d-draeger-soft-green: #31d855;
+    --d-draeger-lightgreen: #00C92C;
+    --d-draeger-orange: #FF8F1F;
+    --d-draeger--darkorange: #ff8000;
+    --d-draeger-orange-hover: #c06e1d;
+    --d-draeger-yellow: #FFE300;
+    --d-draeger-warning: #ffe100;
+    --d-draeger-red: #D70202;
+    --d-draeger-soft-red: #fba5a5;
+    --d-draeger-red-outline: #ffb4b4;
+    --d-draeger-background: #ffffff;
+    --d-draeger-soft-background-pale: #edf6fd;
+    --d-draeger-soft-background-lightsand: #f4f6f2;
+    --d-draeger-background-coolgray: #cdd2d7;
+    --d-draeger-coolgray: #5a646e;
+    --d-draeger-default-text: rgba(60, 60, 67);
+    --d-draeger-wizard-darkmode: #d5e2f6;
+    --odx-palette-cyan-60-15: #008ff526;
+    --odx-palette-cyan-60-25: #008ff540;
+    --d-draeger-border-gradient: linear-gradient(90deg, #0091f7, #6ecdff);
+}
