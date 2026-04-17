@@ -30,3 +30,34 @@
     --odx-palette-cyan-60-25: #008ff540;
     --d-draeger-border-gradient: linear-gradient(90deg, #0091f7, #6ecdff);
 }
+
+.btn {
+    display: inline-block;
+    padding: 0.625rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.btn-primary {
+    background-color: var(--d-draeger-darkblue);
+    color: var(--d-draeger-white);
+}
+
+.btn-secondary {
+    background-color: var(--d-draeger-background-coolgray);
+    color: var(--d-draeger-darkblue);
+}
+
+.btn-quit {
+    background-color: var(--d-draeger-soft-green);
+    color: var(--d-draeger-white);
+}

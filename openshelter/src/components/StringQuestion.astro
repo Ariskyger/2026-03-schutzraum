@@ -1,0 +1,100 @@
+---
+interface Props {
+	question: string;
+}
+
+const { question } = Astro.props;
+---
+
+<div class="question-container">
+	<h2>{question}</h2>
+	<div class="input-group">
+		<input type="text" class="answer-input" placeholder="Type your answer here..." />
+		<button class="submit-button">Submit</button>
+	</div>
+	<p class="response-message hidden"></p>
+</div>
+
+<script>
+	document.querySelectorAll('.question-container').forEach((container) => {
+		const button = container.querySelector('.submit-button');
+		const input = container.querySelector('.answer-input') as HTMLInputElement;
+		const message = container.querySelector('.response-message');
+
+		button?.addEventListener('click', () => {
+			const answer = input.value;
+			if (answer.trim()) {
+				console.log('User answered:', answer);
+				if (message) {
+					message.textContent = `You answered: ${answer}`;
+					message.classList.remove('hidden');
+				}
+			}
+		});
+	});
+</script>
+
+<style>
+	.question-container {
+		max-width: 600px;
+		margin: 2rem auto;
+		padding: 2rem;
+		background: rgba(255, 255, 255, 0.9);
+		border-radius: 16px;
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+		backdrop-filter: blur(5px);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		font-family: Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+	}
+
+	h2 {
+		margin-top: 0;
+		color: #111827;
+		font-size: 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.input-group {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	input[type="text"] {
+		flex: 1;
+		padding: 0.75rem 1rem;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		font-size: 1rem;
+		outline: none;
+		transition: border-color 0.2s;
+	}
+
+	input[type="text"]:focus {
+		border-color: #3245ff;
+	}
+
+	button {
+		padding: 0.75rem 1.5rem;
+		background: linear-gradient(83.21deg, #3245ff 0%, #bc52ee 100%);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: opacity 0.2s;
+	}
+
+	button:hover {
+		opacity: 0.9;
+	}
+
+	#response-message {
+		margin-top: 1rem;
+		color: #4b5563;
+		font-size: 0.9rem;
+	}
+
+	.hidden {
+		display: none;
+	}
+</style>
