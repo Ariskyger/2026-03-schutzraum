@@ -1,0 +1,96 @@
+---
+// Button.astro
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+  id?: string;
+  [key: string]: any; // Erlaubt zusätzliche Attribute wie target="_blank"
+}
+
+const { 
+  variant = 'primary', 
+  href, 
+  type = 'button', 
+  class: className, 
+  id, 
+  ...rest 
+} = Astro.props;
+
+const Element = href ? 'a' : 'button';
+---
+
+<Element 
+  {id}
+  {href} 
+  {type} 
+  class:list={['btn', `btn-${variant}`, className]} 
+  {...rest}
+>
+  <slot />
+</Element>
+
+<style>
+  :root {
+    --d-draeger-airblue: #0091f7;
+    --d-draeger-darkblue: #002766;
+    --transition-speed: 0.2s;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease-in-out;
+    text-decoration: none;
+    border: 2px solid transparent;
+    width: fit-content;
+    font-family: inherit;
+  }
+
+  /* Variant: Primary */
+  .btn-primary {
+    background-color: var(--d-draeger-darkblue);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--d-draeger-airblue);
+    border-color: var(--d-draeger-airblue);
+  }
+
+  /* Variant: Secondary */
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--d-draeger-darkblue);
+    border-color: var(--d-draeger-darkblue);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--d-draeger-darkblue);
+    color: #ffffff;
+  }
+
+  /* Variant: Ghost */
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--d-draeger-darkblue);
+  }
+
+  .btn-ghost:hover {
+    background-color: rgba(0, 39, 102, 0.1);
+  }
+
+  /* Disabled State */
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+  }
+</style>
