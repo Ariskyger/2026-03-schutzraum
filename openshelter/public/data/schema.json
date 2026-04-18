@@ -1,0 +1,120 @@
+{
+  "sections": [
+    {
+      "id": "kontakt",
+      "icon": "👤",
+      "title": "Kontaktdaten",
+      "pairs": [
+        [
+          { "label": "Vorname *", "name": "owner.name", "type": "text", "placeholder": "Max", "required": true },
+          { "label": "Nachname *", "name": "owner.surname", "type": "text", "placeholder": "Mustermann", "required": true }
+        ],
+        [
+          { "label": "Telefon", "name": "owner.phone", "type": "tel", "placeholder": "+49 89 1234567" },
+          { "label": "E-Mail", "name": "owner.email", "type": "email", "placeholder": "max@example.com" }
+        ]
+      ],
+      "booleans": [
+        { "label": "Sind Sie der Eigentümer?", "name": "owner.isOwner", "checked": true }
+      ]
+    },
+    {
+      "id": "standort",
+      "icon": "📍",
+      "title": "Adresse & Standort",
+      "pairs": [
+        [
+          { "label": "Stadt", "name": "address.city", "type": "text", "placeholder": "München" },
+          { "label": "Postleitzahl", "name": "address.postalCode", "type": "text", "placeholder": "80333" }
+        ]
+      ],
+      "singles": [
+        { "label": "Hausnummer", "name": "address.houseNumber", "type": "text", "placeholder": "12a" }
+      ],
+      "coordinates": true
+    },
+    {
+      "id": "gebaeude",
+      "icon": "🏠",
+      "title": "Gebäudedaten",
+      "pairs": [
+        [
+          { "label": "Fläche (m²)", "name": "building.space", "type": "number", "placeholder": "52.5" },
+          { "label": "Personenkapazität", "name": "building.people", "type": "number", "placeholder": "8" }
+        ],
+        [
+          { "label": "Stockwerke über Erde", "name": "building.floorsAbove", "type": "number", "placeholder": "4" },
+          { "label": "Wandstärke (cm)", "name": "building.walls", "type": "number", "placeholder": "30" }
+        ]
+      ],
+      "booleans": [
+        { "label": "Keller vorhanden", "name": "building.isBasement", "checked": false },
+        { "label": "Fenster vorhanden", "name": "building.hasWindow", "checked": false }
+      ]
+    },
+    {
+      "id": "vorraete",
+      "icon": "🥫",
+      "title": "Vorräte & Kommunikation",
+      "pairs": [
+        [
+          { "label": "Wasser vorrätig (Tage)", "name": "supplies.foodAndWater.daysOfWater", "type": "number", "placeholder": "7" },
+          { "label": "Lebensmittel vorrätig (Tage)", "name": "supplies.foodAndWater.daysOfFood", "type": "number", "placeholder": "10" }
+        ],
+        [
+          { "label": "Kochkraftstoff (Tage)", "name": "supplies.foodAndWater.daysOfCookingFuel", "type": "number", "placeholder": "5" },
+          { "label": "Tierfutter (Tage)", "name": "supplies.foodAndWater.daysOfPetFood", "type": "number", "placeholder": "0" }
+        ]
+      ],
+      "booleans": [
+        { "label": "Kochutensilien verfügbar", "name": "supplies.foodAndWater.cookingToolsAvailable", "checked": false },
+        { "label": "Radio vorhanden", "name": "supplies.communication.radio", "checked": false },
+        { "label": "Warn-App installiert", "name": "supplies.communication.warnAppInstalled", "checked": false },
+        { "label": "Powerbank vorhanden", "name": "supplies.communication.powerbank", "checked": false },
+        { "label": "Telefonliste auf Papier", "name": "supplies.communication.phoneList", "checked": false }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "key": "Essen und Trinken",
+      "label": "🍞 Essen & Trinken",
+      "items": ["Trinkwasser", "Haltbare Lebensmittel", "Alternative Kochgelegenheit", "Brennstoffe für Kochgelegenheit", "Futtervorrat für Haustiere"]
+    },
+    {
+      "key": "Information/Kommunikation",
+      "label": "📻 Kommunikation",
+      "items": ["Solar- oder batteriebetriebenes Radio inkl. Batterien oder Kurbelradio", "Warn-App installiert", "Aufgeladene Powerbank", "Liste wichtiger Telefonnummern auf Papier"]
+    },
+    {
+      "key": "Licht und Wärme",
+      "label": "🕯️ Licht & Wärme",
+      "items": ["Taschenlampe und Ersatzbatterien", "Kerzen und Feuerzeug", "Warme Kleidung und Decken", "Schlafsäcke", "Netzunabhängige Heizgelegenheit", "Brennstoffe für Heizgelegenheit"]
+    },
+    {
+      "key": "Hausapotheke",
+      "label": "💊 Hausapotheke",
+      "items": ["Persönliche Medikamente", "Schmerzmittel", "Fiebersenkende Mittel", "Fieberthermometer", "Mittel gegen Durchfall, Erbrechen und Übelkeit", "Mittel gegen Erkältungsbeschwerden", "Elektrolyte zum Ausgleich von Flüssigkeitsverlust", "Wunddesinfektionsmittel", "Hautdesinfektionsmittel", "Pflaster und Verbandsmaterial", "Verbandtuch für Brandwunden", "Einmalhandschuhe", "Kühlkompresse", "Mittel gegen Sonnenbrand und Insektenstiche", "Abschwellendes und kühlendes Gel für kleinere Sportverletzungen", "Abschwellende Nasentropfen oder Nasenspray", "Pinzette", "Schere", "Brand-, Wund-, Heilsalbe"]
+    },
+    {
+      "key": "Notgepäck",
+      "label": "🎒 Notgepäck",
+      "items": ["Warme Kleidung, Regenschutz und feste Schuhe", "Wechselkleidung", "Erste-Hilfe-Material", "Persönliche Medikamente", "Geladene Powerbank", "Hygieneartikel", "Haltbare Lebensmittel und wiederbefüllbare Trinkflasche", "Mappe mit wichtigen Dokumenten", "Schlafsack oder Decke", "Essgeschirr", "Taschenmesser und Dosenöffner", "Taschenlampe", "Batterie- oder solarbetriebenes Radio bzw. Kurbelradio", "Feuerzeug oder Streichhölzer", "Sonnencreme und Kopfbedeckung", "Notizblock und Stift", "Arbeitshandschuhe", "Ersatz für Hilfsmittel wie Brille oder Hörsysteme", "Bargeld"]
+    },
+    {
+      "key": "Brandschutz",
+      "label": "🔥 Brandschutz",
+      "items": ["Rauchmelder", "Feuerlöscher/Feuerlöschspray", "Kohlenmonoxid-Melder"]
+    },
+    {
+      "key": "Hygiene",
+      "label": "🧼 Hygiene",
+      "items": ["Zahnpasta, Zahnbürsten", "Seife", "Persönliche Hygieneartikel", "Müllbeutel", "Toilettenpapier", "Desinfektionsmittel", "Waschmittel", "Feuchttücher", "Haushaltspapier", "Haushaltshandschuhe", "Campingtoilette"]
+    },
+    {
+      "key": "Sonstiges",
+      "label": "📦 Sonstiges",
+      "items": ["Wasserbehälter", "Atemschutzmaske", "Schutzhelm", "Bargeld"]
+    }
+  ]
+}

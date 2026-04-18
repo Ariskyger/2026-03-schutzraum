@@ -1,0 +1,605 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Wizard from "../components/Wizard.astro";
+
+const API_KEY = import.meta.env.HACKATHON_API_KEY ?? "";
+const API_URL = "https://hackathon.draeger-srs.com/api/v1/geo-objects";
+
+let shelterCount = 0;
+try {
+  const res = await fetch(API_URL, { headers: { "X-API-Key": API_KEY } });
+  if (res.ok) {
+    const json = await res.json();
+    shelterCount = json?.data?.length ?? 0;
+  }
+} catch {}
+---
+
+<Layout>
+  <div id="flow">
+
+    <!-- Phase 1: Wizard -->
+    <div id="phase-wizard">
+      {shelterCount > 0 && (
+        <div class="shelter-count-banner">
+          {shelterCount} Schutzraum{shelterCount !== 1 ? "räume" : ""} bereits erfasst
+        </div>
+      )}
+      <Wizard />
+    </div>
+
+    <!-- Phase 2: BOS Frage -->
+    <div id="phase-bos" class="phase-hidden bos-wrap">
+      <div class="bos-card">
+        <div class="bos-icon">🏛️</div>
+        <h2 class="bos-title">Möchten Sie Ihren Schutzraum an die BOS übertragen?</h2>
+        <p class="bos-text">
+          Behörden und Organisationen mit Sicherheitsaufgaben (BOS) wie Feuerwehr, Polizei und THW
+          können Ihren Schutzraum im Ernstfall einsehen und koordinieren.
+        </p>
+        <div class="bos-actions">
+          <button class="bos-btn bos-btn--yes" id="bos-yes">✓ Ja, an BOS übertragen</button>
+          <button class="bos-btn bos-btn--no" id="bos-no">✕ Nein, privat bleiben</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3: Step-by-Step Formular -->
+    <div id="phase-form" class="phase-hidden">
+      <!-- Progress Bar -->
+      <div class="step-progress" id="step-progress">
+        <div class="step-progress-bar">
+          <div class="step-progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="step-progress-label" id="progress-label">Schritt 1</div>
+      </div>
+
+      <!-- Step Container — wird per JS befüllt -->
+      <div id="step-container"></div>
+
+      <!-- Navigation -->
+      <div class="step-nav" id="step-nav">
+        <button type="button" class="btn btn-secondary" id="btn-back">← Zurück</button>
+        <button type="button" class="btn btn-primary" id="btn-next">Weiter →</button>
+        <button type="button" class="btn btn-primary phase-hidden" id="btn-submit">
+          Schutzraum speichern ✓
+        </button>
+      </div>
+
+      <div id="form-status" class="phase-hidden status-box"></div>
+    </div>
+
+    <!-- Phase 4a: Fertig mit BOS -->
+    <div id="phase-done-bos" class="phase-hidden">
+      <div class="question-container">
+        <h2>Vielen Dank!</h2>
+        <p class="result-text">
+          Ihr Schutzraum wurde erfolgreich erfasst und an die zuständigen Behörden und
+          Organisationen mit Sicherheitsaufgaben (BOS) übertragen.<br /><br />
+          Im Ernstfall können Einsatzkräfte wie Feuerwehr, Polizei und THW Ihren Schutzraum
+          einsehen und koordinieren.
+        </p>
+        <div class="wizard-actions">
+          <a href="/" class="btn btn-secondary">Zurück zur Startseite</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4b: Fertig ohne BOS -->
+    <div id="phase-done-private" class="phase-hidden">
+      <div class="question-container">
+        <h2>Schutzraum erfasst</h2>
+        <p class="result-text">
+          Ihr Schutzraum wurde erfolgreich erfasst.<br /><br />
+          <strong>Ihre Daten bleiben privat:</strong> Der Schutzraum wird nicht an Behörden
+          übertragen und nicht öffentlich aufgelistet.
+        </p>
+        <div class="wizard-actions">
+          <a href="/" class="btn btn-secondary">Zurück zur Startseite</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<style is:global>
+  .phase-hidden { display: none !important; }
+
+  .shelter-count-banner {
+    max-width: 600px; margin: 1rem auto; padding: 0.75rem 1.25rem;
+    background: rgba(0,145,247,0.08); border: 1px solid var(--d-draeger-airblue);
+    border-radius: 10px; font-size: 0.9rem; color: var(--d-draeger-darkblue); text-align: center;
+  }
+
+  /* BOS */
+  .bos-wrap { display: flex; align-items: center; justify-content: center; padding: 1rem 1rem 2rem; }
+  .bos-card {
+    max-width: 560px; width: 100%; background: rgba(255,255,255,0.9);
+    border-radius: 20px; box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+    backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3);
+    padding: 2.5rem 2rem; text-align: center;
+  }
+  .bos-icon { font-size: 3rem; margin-bottom: 1rem; line-height: 1; }
+  .bos-title { font-size: 1.4rem; font-weight: 600; color: var(--d-draeger-darkblue); margin: 0 0 1rem; line-height: 1.3; }
+  .bos-text { font-size: 0.95rem; color: #4b5563; line-height: 1.6; margin: 0 0 2rem; }
+  .bos-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+  .bos-btn { width: 100%; padding: 0.9rem 1.5rem; border-radius: 10px; font-size: 1rem; font-weight: 500; font-family: inherit; cursor: pointer; border: none; transition: transform 0.15s, box-shadow 0.15s; }
+  .bos-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .bos-btn:active { transform: translateY(0); }
+  .bos-btn--yes { background: var(--d-draeger-darkblue); color: white; }
+  .bos-btn--no { background: transparent; color: #6b7280; border: 1px solid #d1d5db; }
+  .bos-btn--no:hover { background: #f9fafb; }
+
+  /* Progress */
+  .step-progress {
+    max-width: 600px !important; margin: 1.5rem auto 0 !important;
+    display: flex !important; align-items: center !important; gap: 1rem !important; padding: 0 0.5rem !important;
+  }
+  .step-progress-bar { flex: 1 !important; height: 6px !important; background: rgba(0,39,102,0.1) !important; border-radius: 6px !important; overflow: hidden !important; }
+  .step-progress-fill { height: 100% !important; background: var(--d-draeger-airblue) !important; border-radius: 6px !important; transition: width 0.3s ease !important; }
+  .step-progress-label { font-size: 0.85rem !important; color: var(--d-draeger-darkblue) !important; font-weight: 500 !important; white-space: nowrap !important; }
+
+  /* Step Card */
+  .step-card {
+    max-width: 600px !important; margin: 1rem auto !important;
+    background: rgba(255,255,255,0.9) !important; border-radius: 16px !important;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.1) !important; backdrop-filter: blur(5px) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important; overflow: hidden !important;
+  }
+  .step-card-header {
+    display: flex !important; align-items: center !important; gap: 0.75rem !important;
+    padding: 1.25rem 2rem !important;
+    background: rgba(0,39,102,0.04) !important; border-bottom: 1px solid rgba(0,39,102,0.08) !important;
+  }
+  .step-card-icon { font-size: 1.4rem !important; line-height: 1 !important; }
+  .step-card-header h3 { margin: 0 !important; font-size: 1.1rem !important; font-weight: 600 !important; color: var(--d-draeger-darkblue) !important; }
+  .step-card-body { padding: 1.5rem 2rem !important; }
+
+  /* Fields */
+  .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field-single { margin-bottom: 1rem; }
+  .inline-field { display: flex; flex-direction: column; gap: 5px; }
+  .inline-field label { font-size: 0.85rem; font-weight: 600; color: var(--d-draeger-darkblue); }
+  .inline-field input {
+    padding: 0.65rem 0.9rem; border: 1px solid #d1d5db; border-radius: 8px;
+    font-size: 0.95rem; font-family: inherit; outline: none;
+    width: 100%; box-sizing: border-box; transition: border-color 0.2s;
+  }
+  .inline-field input:focus { border-color: var(--d-draeger-airblue); box-shadow: 0 0 0 3px rgba(0,145,247,0.12); }
+
+  .bool-group { display: flex !important; flex-wrap: wrap !important; gap: 0.75rem !important; margin-top: 0.5rem !important; }
+  .bool-pill {
+    display: flex !important; align-items: center !important; gap: 0.5rem !important; font-size: 0.9rem !important; color: #374151 !important;
+    cursor: pointer !important; background: rgba(0,39,102,0.04) !important; border: 1px solid rgba(0,39,102,0.1) !important;
+    border-radius: 8px !important; padding: 0.4rem 0.75rem !important; user-select: none !important;
+  }
+  .bool-pill:hover { background: rgba(0,145,247,0.06) !important; border-color: rgba(0,145,247,0.3) !important; }
+  .bool-pill input { width: 1.1rem !important; height: 1.1rem !important; accent-color: var(--d-draeger-airblue) !important; cursor: pointer !important; }
+
+  /* Koordinaten */
+  .coord-card {
+    background: rgba(0,145,247,0.04); border: 1px solid rgba(0,145,247,0.2);
+    border-radius: 12px; padding: 1.25rem; box-sizing: border-box; margin-top: 1rem;
+  }
+  .coord-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .coord-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .coord-meta { flex: 1; }
+  .coord-title { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--d-draeger-darkblue); }
+  .coord-sub { margin: 0; font-size: 0.8rem; color: #6b7280; }
+  .coord-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem; }
+  .coord-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .coord-field label { font-size: 0.8rem; font-weight: 600; color: var(--d-draeger-darkblue); }
+  .coord-field input {
+    padding: 0.6rem 0.9rem; border: 1px solid #d1d5db; border-radius: 8px;
+    font-size: 0.95rem; font-family: inherit; outline: none;
+    width: 100%; box-sizing: border-box; min-width: 0; transition: border-color 0.2s;
+  }
+  .coord-field input:focus { border-color: var(--d-draeger-airblue); box-shadow: 0 0 0 3px rgba(0,145,247,0.12); }
+  .coord-preview {
+    margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(0,145,247,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.85rem; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .coord-display { color: #374151; font-family: monospace; }
+  .coord-link { color: var(--d-draeger-airblue); text-decoration: none; font-weight: 500; }
+  .coord-link:hover { text-decoration: underline; }
+
+  /* Checklist step */
+  .checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .checklist-item {
+    display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;
+    padding: 0.5rem 0.6rem; border-radius: 8px; transition: background 0.15s; user-select: none;
+  }
+  .checklist-item:hover { background: rgba(0,145,247,0.05); }
+  .checklist-item input { width: 1.1rem; height: 1.1rem; accent-color: var(--d-draeger-airblue); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+  .checklist-item span { font-size: 0.875rem; color: #374151; line-height: 1.4; }
+
+  /* Navigation */
+  .step-nav {
+    max-width: 600px !important; margin: 1rem auto 3rem !important;
+    display: flex !important; gap: 0.75rem !important;
+  }
+  .step-nav .btn { flex: 1 !important; padding: 0.9rem !important; font-size: 1rem !important; }
+
+  .status-box { max-width: 600px; margin: 0.5rem auto; padding: 1rem; border-radius: 8px; text-align: center; font-size: 14px; }
+  .status-box.success { background: #e6f4ff; color: var(--d-draeger-darkblue); border: 1px solid var(--d-draeger-airblue); }
+  .status-box.error { background: #FCEBEB; color: #A32D2D; border: 1px solid #F09595; }
+
+  @media (max-width: 600px) {
+    .field-pair { grid-template-columns: 1fr; }
+    .coord-inputs { grid-template-columns: 1fr; }
+    .checklist-grid { grid-template-columns: 1fr; }
+    .step-card-body { padding: 1rem; }
+  }
+</style>
+
+<script define:vars={{ API_KEY }}>
+  const API_URL = "https://hackathon.draeger-srs.com/api/v1/geo-objects";
+  window.__wizardData = {};
+  window.__formData = {}; // Gesammelte Antworten über alle Schritte
+
+  let schema = null;
+  let currentStep = 0;
+  let steps = []; // Array aller Schritte
+
+  function show(id) { document.getElementById(id)?.classList.remove("phase-hidden"); }
+  function hide(id) { document.getElementById(id)?.classList.add("phase-hidden"); }
+
+  // ─── Wizard → BOS ──────────────────────────────────────────────────────────
+
+  document.addEventListener("wizardComplete", (e) => {
+    window.__wizardData = e.detail || {};
+    show("phase-bos");
+    document.getElementById("phase-bos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  const wizardEl = document.getElementById("phase-wizard");
+  if (wizardEl) {
+    const observer = new MutationObserver(() => {
+      const result = wizardEl.querySelector(".wizard-result:not(.hidden)");
+      if (result) {
+        observer.disconnect();
+        show("phase-bos");
+        document.getElementById("phase-bos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+    observer.observe(wizardEl, { subtree: true, attributes: true, attributeFilter: ["class"] });
+  }
+
+  // ─── BOS Ja → Schema laden → Schritte aufbauen ─────────────────────────────
+
+  document.getElementById("bos-yes").addEventListener("click", async () => {
+    hide("phase-wizard");
+    hide("phase-bos");
+    show("phase-form");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    try {
+      const res = await fetch("/data/schema.json");
+      if (!res.ok) throw new Error("Schema nicht gefunden");
+      schema = await res.json();
+      buildSteps(schema);
+      renderStep(0);
+    } catch (err) {
+      document.getElementById("step-container").innerHTML =
+        `<p style="text-align:center;color:#A32D2D;padding:2rem">Fehler: ${err.message}</p>`;
+    }
+  });
+
+  // BOS Nein
+  document.getElementById("bos-no").addEventListener("click", async () => {
+    const ok = await postToApi(window.__wizardData, false);
+    hide("phase-bos");
+    if (ok) show("phase-done-private");
+    else alert("Fehler beim Speichern – bitte erneut versuchen.");
+  });
+
+  // ─── Schritte aufbauen ─────────────────────────────────────────────────────
+
+  function buildSteps(schema) {
+    steps = [];
+
+    // Normale Sektionen (Kontakt, Standort, Gebäude, Vorräte)
+    schema.sections.forEach(section => {
+      steps.push({ type: "section", data: section });
+    });
+
+    // Jede Checklisten-Kategorie als eigener Schritt
+    schema.categories.forEach(cat => {
+      steps.push({ type: "checklist", data: cat });
+    });
+  }
+
+  // ─── Schritt rendern ───────────────────────────────────────────────────────
+
+  function renderStep(index) {
+    currentStep = index;
+    const step = steps[index];
+    const container = document.getElementById("step-container");
+
+    // Aktuelle Formularwerte speichern bevor wir wechseln
+    saveCurrentValues();
+
+    // Progress
+    const pct = Math.round(((index + 1) / steps.length) * 100);
+    document.getElementById("progress-fill").style.width = pct + "%";
+    document.getElementById("progress-label").textContent =
+      `Schritt ${index + 1} von ${steps.length}`;
+
+    // Navigation
+    const btnBack = document.getElementById("btn-back");
+    const btnNext = document.getElementById("btn-next");
+    const btnSubmit = document.getElementById("btn-submit");
+    const isLast = index === steps.length - 1;
+
+    btnBack.classList.toggle("phase-hidden", index === 0);
+    btnNext.classList.toggle("phase-hidden", isLast);
+    btnSubmit.classList.toggle("phase-hidden", !isLast);
+
+    // Schritt HTML rendern
+    if (step.type === "section") {
+      container.innerHTML = renderSection(step.data);
+    } else {
+      container.innerHTML = renderChecklist(step.data);
+    }
+
+    // Gespeicherte Werte wiederherstellen
+    restoreValues(index);
+
+    // Events
+    attachStepEvents();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function renderSection(section) {
+    return `
+      <div class="step-card">
+        <div class="step-card-header">
+          <span class="step-card-icon">${section.icon}</span>
+          <h3>${section.title}</h3>
+        </div>
+        <div class="step-card-body">
+          ${(section.pairs || []).map(pair => `
+            <div class="field-pair">
+              ${pair.map(f => `
+                <div class="inline-field">
+                  <label>${f.label}</label>
+                  <input type="${f.type}" name="${f.name}" placeholder="${f.placeholder || ""}" ${f.required ? "required" : ""} />
+                </div>
+              `).join("")}
+            </div>
+          `).join("")}
+
+          ${(section.singles || []).map(f => `
+            <div class="field-single">
+              <div class="inline-field">
+                <label>${f.label}</label>
+                <input type="${f.type}" name="${f.name}" placeholder="${f.placeholder || ""}" />
+              </div>
+            </div>
+          `).join("")}
+
+          ${section.coordinates ? `
+            <div class="coord-card">
+              <div class="coord-header">
+                <div class="coord-icon">🗺️</div>
+                <div class="coord-meta">
+                  <p class="coord-title">GPS-Koordinaten</p>
+                  <p class="coord-sub">Für die Kartenansicht der Einsatzkräfte</p>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary" id="locate-btn" style="width:100%">
+                Standort automatisch ermitteln
+              </button>
+              <div class="coord-inputs">
+                <div class="coord-field">
+                  <label>Breitengrad</label>
+                  <input type="number" name="address.latitude" id="lat-input" placeholder="48.137400" step="0.000001" />
+                </div>
+                <div class="coord-field">
+                  <label>Längengrad</label>
+                  <input type="number" name="address.longitude" id="lng-input" placeholder="11.575500" step="0.000001" />
+                </div>
+              </div>
+              <div class="coord-preview phase-hidden" id="coord-preview">
+                <span class="coord-display" id="coord-display"></span>
+                <a class="coord-link" id="coord-link" href="#" target="_blank" rel="noopener">In Karte anzeigen →</a>
+              </div>
+            </div>
+          ` : ""}
+
+          ${(section.booleans || []).length > 0 ? `
+            <div class="bool-group">
+              ${section.booleans.map(b => `
+                <label class="bool-pill">
+                  <input type="checkbox" name="${b.name}" ${b.checked ? "checked" : ""} />
+                  ${b.label}
+                </label>
+              `).join("")}
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderChecklist(cat) {
+    return `
+      <div class="step-card">
+        <div class="step-card-header">
+          <span class="step-card-icon">${cat.label.split(" ")[0]}</span>
+          <h3>${cat.label.split(" ").slice(1).join(" ")}</h3>
+        </div>
+        <div class="step-card-body">
+          <div class="checklist-grid">
+            ${cat.items.map(item => `
+              <label class="checklist-item">
+                <input type="checkbox" name="categories.${cat.key}.${item}" />
+                <span>${item}</span>
+              </label>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ─── Werte speichern / wiederherstellen ────────────────────────────────────
+
+  function saveCurrentValues() {
+    document.querySelectorAll("#step-container input").forEach(input => {
+      if (!input.name) return;
+      if (input.type === "checkbox") {
+        window.__formData[input.name] = input.checked ? "true" : "false";
+      } else {
+        window.__formData[input.name] = input.value;
+      }
+    });
+  }
+
+  function restoreValues(index) {
+    document.querySelectorAll("#step-container input").forEach(input => {
+      if (!input.name || !(input.name in window.__formData)) return;
+      if (input.type === "checkbox") {
+        input.checked = window.__formData[input.name] === "true";
+      } else {
+        input.value = window.__formData[input.name];
+      }
+    });
+
+    // Koordinaten-Vorschau wiederherstellen
+    const lat = window.__formData["address.latitude"];
+    const lng = window.__formData["address.longitude"];
+    if (lat && lng) updateCoordPreview(lat, lng);
+  }
+
+  // ─── Step Events ───────────────────────────────────────────────────────────
+
+  function attachStepEvents() {
+    document.getElementById("locate-btn")?.addEventListener("click", () => {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          document.getElementById("lat-input").value = lat;
+          document.getElementById("lng-input").value = lng;
+          updateCoordPreview(lat, lng);
+        },
+        () => alert("Standort konnte nicht ermittelt werden.")
+      );
+    });
+
+    ["lat-input", "lng-input"].forEach(id => {
+      document.getElementById(id)?.addEventListener("input", () => {
+        const lat = document.getElementById("lat-input")?.value;
+        const lng = document.getElementById("lng-input")?.value;
+        if (lat && lng) updateCoordPreview(lat, lng);
+      });
+    });
+  }
+
+  function updateCoordPreview(lat, lng) {
+    const preview = document.getElementById("coord-preview");
+    if (!preview) return;
+    document.getElementById("coord-display").textContent =
+      `${parseFloat(lat).toFixed(4)}°N, ${parseFloat(lng).toFixed(4)}°E`;
+    document.getElementById("coord-link").href =
+      `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=16`;
+    preview.classList.remove("phase-hidden");
+  }
+
+  // ─── Navigation ────────────────────────────────────────────────────────────
+
+  document.getElementById("btn-next").addEventListener("click", () => {
+    if (currentStep < steps.length - 1) renderStep(currentStep + 1);
+  });
+
+  document.getElementById("btn-back").addEventListener("click", () => {
+    if (currentStep > 0) renderStep(currentStep - 1);
+  });
+
+  // ─── Submit ────────────────────────────────────────────────────────────────
+
+  document.getElementById("btn-submit").addEventListener("click", async () => {
+    saveCurrentValues();
+
+    const btn = document.getElementById("btn-submit");
+    btn.textContent = "Wird gespeichert...";
+    btn.disabled = true;
+
+    const merged = deepMerge(window.__wizardData, buildNestedData(window.__formData));
+    const ok = await postToApi(merged, true);
+
+    if (ok) {
+      hide("phase-form");
+      show("phase-done-bos");
+    } else {
+      btn.textContent = "Schutzraum speichern ✓";
+      btn.disabled = false;
+    }
+  });
+
+  // ─── Daten aufbereiten ─────────────────────────────────────────────────────
+
+  function buildNestedData(flat) {
+    const data = {};
+    const set = (obj, path, val) => {
+      const keys = path.split(".");
+      keys.reduce((cur, key, i) => {
+        if (i === keys.length - 1) cur[key] = val;
+        else cur[key] = cur[key] ?? {};
+        return cur[key];
+      }, obj);
+    };
+    for (const [key, val] of Object.entries(flat)) {
+      set(data, key, val);
+    }
+    return data;
+  }
+
+  async function postToApi(data, bosTransfer) {
+    const lat = parseFloat(data?.address?.latitude || 0);
+    const lng = parseFloat(data?.address?.longitude || 0);
+    const payload = {
+      title: `Schutzraum ${data?.owner?.name ?? ""} ${data?.owner?.surname ?? ""}`.trim() || "Schutzraum",
+      data: { ...data, general: { ...(data.general || {}), bosTransfer: bosTransfer ? "true" : "false", shared: bosTransfer ? "true" : "false" } },
+      geometry: { type: "point", coordinates: [{ longitude: lng, latitude: lat, externalId: "", sortOrder: 0, address: { street: "", houseNumber: data?.address?.houseNumber || "", additionalInfo: "", city: data?.address?.city || "", district: "", zipCode: data?.address?.postalCode || "", country: "DE" } }] },
+    };
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-Key": API_KEY },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return true;
+      const err = await res.json().catch(() => ({}));
+      showStatus(`Fehler: ${err?.error ?? res.status}`, false);
+      return false;
+    } catch {
+      showStatus("Netzwerkfehler – bitte erneut versuchen.", false);
+      return false;
+    }
+  }
+
+  function deepMerge(base, override) {
+    const result = { ...(base || {}) };
+    for (const key of Object.keys(override || {})) {
+      if (typeof override[key] === "object" && !Array.isArray(override[key]) && override[key] !== null && typeof result[key] === "object") {
+        result[key] = deepMerge(result[key], override[key]);
+      } else {
+        result[key] = override[key];
+      }
+    }
+    return result;
+  }
+
+  function showStatus(msg, success) {
+    const el = document.getElementById("form-status");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove("phase-hidden", "success", "error");
+    el.classList.add(success ? "success" : "error");
+  }
+</script>

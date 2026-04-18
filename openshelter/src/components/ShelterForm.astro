@@ -1,0 +1,364 @@
+---
+const API_KEY = import.meta.env.HACKATHON_API_KEY ?? "";
+
+const CATEGORIES = [
+  "Essen und Trinken",
+  "Information/Kommunikation",
+  "Licht und Waerme",
+  "Hausapotheke",
+  "Notgepaeck",
+  "Brandschutz",
+  "Hygiene",
+  "Sonstiges",
+];
+
+const CAT_LABELS = {
+  "Essen und Trinken": "Essen & Trinken",
+  "Information/Kommunikation": "Kommunikation",
+  "Licht und Waerme": "Licht & Wärme",
+  "Hausapotheke": "Hausapotheke",
+  "Notgepaeck": "Notgepäck",
+  "Brandschutz": "Brandschutz",
+  "Hygiene": "Hygiene",
+  "Sonstiges": "Sonstiges",
+};
+
+const CHECKLIST = {
+  "Essen und Trinken": [
+    "Trinkwasser", "Haltbare Lebensmittel", "Alternative Kochgelegenheit",
+    "Brennstoffe fuer Kochgelegenheit", "Futtervorrat fuer Haustiere",
+  ],
+  "Information/Kommunikation": [
+    "Solar- oder batteriebetriebenes Radio inkl. Batterien oder Kurbelradio",
+    "Warn-App installiert", "Aufgeladene Powerbank",
+    "Liste wichtiger Telefonnummern auf Papier",
+  ],
+  "Licht und Waerme": [
+    "Taschenlampe und Ersatzbatterien", "Kerzen und Feuerzeug",
+    "Warme Kleidung und Decken", "Schlafsaecke",
+    "Netzunabhaengige Heizgelegenheit", "Brennstoffe fuer Heizgelegenheit",
+  ],
+  "Hausapotheke": [
+    "Persoenliche Medikamente", "Schmerzmittel", "Fiebersenkende Mittel",
+    "Fieberthermometer", "Mittel gegen Durchfall, Erbrechen und Uebelkeit",
+    "Wunddesinfektionsmittel", "Pflaster und Verbandsmaterial", "Einmalhandschuhe",
+  ],
+  "Notgepaeck": [
+    "Warme Kleidung, Regenschutz und feste Schuhe", "Wechselkleidung",
+    "Erste-Hilfe-Material", "Persoenliche Medikamente",
+    "Geladene Powerbank", "Mappe mit wichtigen Dokumenten", "Bargeld",
+  ],
+  "Brandschutz": [
+    "Rauchmelder", "Feuerloescher/Feuerloeschspray", "Kohlenmonoxid-Melder",
+  ],
+  "Hygiene": [
+    "Zahnpasta, Zahnbuersten", "Seife", "Toilettenpapier",
+    "Desinfektionsmittel", "Feuchttuecher", "Campingtoilette",
+  ],
+  "Sonstiges": [
+    "Wasserbehaelter", "Atemschutzmaske", "Schutzhelm", "Bargeld",
+  ],
+};
+
+const TOTAL_STEPS = 6;
+---
+
+<form id="shelter-form" novalidate>
+  <div class="progress-wrap">
+    <div class="steps-indicator">
+      {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+        <div class={`step-dot${i === 0 ? " active" : ""}`}></div>
+      ))}
+    </div>
+    <span class="progress-text" id="progress-text">Schritt 1 von {TOTAL_STEPS}</span>
+  </div>
+
+  <!-- Step 1 -->
+  <section class="step" data-step="1">
+    <div class="section-header"><span class="step-number">1</span><h2 class="section-title">Allgemeine Informationen</h2></div>
+    <div class="field">
+      <label for="title">Bezeichnung <span class="req">*</span></label>
+      <input type="text" id="title" name="title" placeholder="z.B. Keller Musterstraße 1" required />
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="shelter-category">Kategorie</label>
+        <select id="shelter-category" name="general.shelter-category">
+          <option value="1">Kategorie 1</option>
+          <option value="2">Kategorie 2</option>
+          <option value="3">Kategorie 3</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Gemeinsam nutzbar</label>
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" name="general.shared" id="shared" /><span class="slider"></span></label>
+          <span id="shared-label">Nein</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="step hidden" data-step="2">
+    <div class="section-header"><span class="step-number">2</span><h2 class="section-title">Kontaktdaten</h2></div>
+    <div class="field-row">
+      <div class="field"><label>Vorname <span class="req">*</span></label><input type="text" name="owner.name" placeholder="Max" required /></div>
+      <div class="field"><label>Nachname <span class="req">*</span></label><input type="text" name="owner.surname" placeholder="Mustermann" required /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Telefon</label><input type="tel" name="owner.phone" placeholder="+49 89 1234567" /></div>
+      <div class="field"><label>E-Mail</label><input type="email" name="owner.email" placeholder="max@example.com" /></div>
+    </div>
+    <div class="toggle-row">
+      <span>Ist Eigentümer/in</span>
+      <label class="toggle"><input type="checkbox" name="owner.isOwner" checked /><span class="slider"></span></label>
+    </div>
+  </section>
+
+  <!-- Step 3 -->
+  <section class="step hidden" data-step="3">
+    <div class="section-header"><span class="step-number">3</span><h2 class="section-title">Standort</h2></div>
+    <div class="field-row">
+      <div class="field"><label>Breitengrad</label><input type="number" name="latitude" placeholder="48.1371" step="0.0001" /></div>
+      <div class="field"><label>Längengrad</label><input type="number" name="longitude" placeholder="11.5754" step="0.0001" /></div>
+    </div>
+    <button type="button" class="btn-locate" id="locate-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      Standort automatisch ermitteln
+    </button>
+    <p class="hint">Koordinaten werden für die Kartenansicht verwendet.</p>
+  </section>
+
+  <!-- Step 4 -->
+  <section class="step hidden" data-step="4">
+    <div class="section-header"><span class="step-number">4</span><h2 class="section-title">Gebäudedaten</h2></div>
+    <div class="field-row">
+      <div class="field"><label>Fläche (m²)</label><input type="number" name="building.space" placeholder="52.5" /></div>
+      <div class="field"><label>Personenkapazität</label><input type="number" name="building.people" placeholder="8" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Stockwerke über Erde</label><input type="number" name="building.floorsAbove" placeholder="4" /></div>
+      <div class="field"><label>Wandstärke (cm)</label><input type="number" name="building.walls" placeholder="30" /></div>
+    </div>
+    <div class="toggle-row"><span>Keller vorhanden</span><label class="toggle"><input type="checkbox" name="building.isBasement" /><span class="slider"></span></label></div>
+    <div class="toggle-row"><span>Fenster vorhanden</span><label class="toggle"><input type="checkbox" name="building.hasWindow" /><span class="slider"></span></label></div>
+  </section>
+
+  <!-- Step 5 -->
+  <section class="step hidden" data-step="5">
+    <div class="section-header"><span class="step-number">5</span><h2 class="section-title">Vorräte & Kommunikation</h2></div>
+    <p class="subsection-label">Lebensmittel & Wasser</p>
+    <div class="field-row">
+      <div class="field"><label>Wasser (Tage)</label><input type="number" name="supplies.foodAndWater.daysOfWater" placeholder="7" /></div>
+      <div class="field"><label>Lebensmittel (Tage)</label><input type="number" name="supplies.foodAndWater.daysOfFood" placeholder="10" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Kochkraftstoff (Tage)</label><input type="number" name="supplies.foodAndWater.daysOfCookingFuel" placeholder="5" /></div>
+      <div class="field"><label>Tierfutter (Tage)</label><input type="number" name="supplies.foodAndWater.daysOfPetFood" placeholder="3" /></div>
+    </div>
+    <div class="toggle-row"><span>Kochutensilien verfügbar</span><label class="toggle"><input type="checkbox" name="supplies.foodAndWater.cookingToolsAvailable" /><span class="slider"></span></label></div>
+    <p class="subsection-label" style="margin-top:1rem">Kommunikation</p>
+    <div class="toggle-row"><span>Radio vorhanden</span><label class="toggle"><input type="checkbox" name="supplies.communication.radio" /><span class="slider"></span></label></div>
+    <div class="toggle-row"><span>Warn-App installiert</span><label class="toggle"><input type="checkbox" name="supplies.communication.warnAppInstalled" /><span class="slider"></span></label></div>
+    <div class="toggle-row"><span>Powerbank vorhanden</span><label class="toggle"><input type="checkbox" name="supplies.communication.powerbank" /><span class="slider"></span></label></div>
+    <div class="toggle-row"><span>Telefonliste auf Papier</span><label class="toggle"><input type="checkbox" name="supplies.communication.phoneList" /><span class="slider"></span></label></div>
+  </section>
+
+  <!-- Step 6 -->
+  <section class="step hidden" data-step="6">
+    <div class="section-header"><span class="step-number">6</span><h2 class="section-title">Checklisten</h2></div>
+    <div class="category-tabs">
+      {CATEGORIES.map((cat, i) => (
+        <button type="button" class={`tab${i === 0 ? " active" : ""}`} data-cat={cat}>
+          {CAT_LABELS[cat]}
+        </button>
+      ))}
+    </div>
+    {CATEGORIES.map((cat, i) => (
+      <div class={`cat-panel${i === 0 ? "" : " hidden"}`} data-cat-panel={cat}>
+        {CHECKLIST[cat].map((key) => (
+          <div class="toggle-row">
+            <span>{key.replace(/ue/g,"ü").replace(/ae(?!r)/g,"ä").replace(/oe/g,"ö")}</span>
+            <label class="toggle"><input type="checkbox" name={`${cat}.${key}`} /><span class="slider"></span></label>
+          </div>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <div class="nav-row">
+    <button type="button" class="btn-back hidden" id="btn-back">← Zurück</button>
+    <button type="button" class="btn-next" id="btn-next">Weiter →</button>
+    <button type="submit" class="btn-submit hidden" id="btn-submit">Schutzraum speichern</button>
+  </div>
+  <div id="form-status" class="status hidden"></div>
+</form>
+
+<style>
+  :root { --dd: #002766; --db: #0091f7; --dbl: #e6f4ff; --dbm: #cce8fe; }
+  form { max-width: 620px; margin: 0 auto; padding: 1.5rem 0; font-family: inherit; }
+  .progress-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .steps-indicator { display: flex; gap: 6px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #e5e7eb; transition: all .2s; }
+  .step-dot.active { background: var(--db); transform: scale(1.35); }
+  .step-dot.done { background: var(--dd); }
+  .progress-text { font-size: 12px; color: #6b7280; }
+  .step { background: #fff; border: 0.5px solid #e5e7eb; border-top: 3px solid var(--db); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .step-number { width: 26px; height: 26px; border-radius: 50%; background: var(--db); color: #fff; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+  .section-title { font-size: 15px; font-weight: 500; color: var(--dd); margin: 0; }
+  .subsection-label { font-size: 12px; font-weight: 500; color: var(--db); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  label { font-size: 13px; color: #6b7280; font-weight: 500; }
+  .req { color: #E24B4A; }
+  input[type="text"], input[type="number"], input[type="email"], input[type="tel"], select { background: #f9fafb; border: 0.5px solid #e5e7eb; border-radius: 8px; padding: 9px 11px; font-size: 14px; color: #111; font-family: inherit; outline: none; width: 100%; transition: border-color .15s, box-shadow .15s; }
+  input:focus, select:focus { border-color: var(--db); box-shadow: 0 0 0 3px rgba(0,145,247,.12); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #e5e7eb; font-size: 14px; color: #111; }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-wrap { display: flex; align-items: center; gap: 10px; padding-top: 4px; font-size: 13px; color: #6b7280; }
+  .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: #d1d5db; border-radius: 22px; transition: background .2s; }
+  .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
+  .toggle input:checked + .slider { background: var(--db); }
+  .toggle input:checked + .slider:before { transform: translateX(18px); }
+  .btn-locate { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border: 0.5px solid var(--db); color: var(--db); background: var(--dbl); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
+  .btn-locate:hover { background: var(--dbm); }
+  .hint { font-size: 12px; color: #6b7280; margin-top: 4px; }
+  .category-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tab { padding: 5px 12px; border-radius: 20px; border: 0.5px solid #e5e7eb; background: #f9fafb; font-size: 12px; cursor: pointer; color: #6b7280; font-family: inherit; transition: all .15s; }
+  .tab.active { background: var(--dd); border-color: var(--dd); color: #fff; }
+  .cat-panel.hidden { display: none; }
+  .nav-row { display: flex; gap: 10px; margin-top: .5rem; }
+  .btn-next, .btn-submit { flex: 1; padding: 12px 20px; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .btn-next { background: var(--db); }
+  .btn-next:hover { background: #0078d4; }
+  .btn-submit { background: var(--dd); }
+  .btn-submit:hover { background: #001a4d; }
+  .btn-back { padding: 12px 20px; background: transparent; color: #6b7280; border: 0.5px solid #e5e7eb; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .hidden { display: none !important; }
+  .status { margin-top: 12px; padding: 12px 16px; border-radius: 8px; font-size: 14px; text-align: center; }
+  .status.success { background: #e6f4ff; color: var(--dd); border: 0.5px solid var(--db); }
+  .status.error { background: #FCEBEB; color: #A32D2D; border: 0.5px solid #F09595; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+</style>
+
+<script define:vars={{ API_KEY, TOTAL_STEPS }}>
+  const API_URL = "https://hackathon.draeger-srs.com/api/v1/geo-objects";
+  let currentStep = 1;
+  const btnNext = document.getElementById("btn-next");
+  const btnBack = document.getElementById("btn-back");
+  const btnSubmit = document.getElementById("btn-submit");
+  const statusEl = document.getElementById("form-status");
+
+  function showStep(step) {
+    document.querySelectorAll(".step").forEach(el =>
+      el.classList.toggle("hidden", Number(el.dataset.step) !== step)
+    );
+    document.querySelectorAll(".step-dot").forEach((dot, i) => {
+      dot.classList.toggle("active", i + 1 === step);
+      dot.classList.toggle("done", i + 1 < step);
+    });
+    document.getElementById("progress-text").textContent = `Schritt ${step} von ${TOTAL_STEPS}`;
+    btnBack.classList.toggle("hidden", step === 1);
+    btnNext.classList.toggle("hidden", step === TOTAL_STEPS);
+    btnSubmit.classList.toggle("hidden", step !== TOTAL_STEPS);
+  }
+
+  btnNext.addEventListener("click", () => { if (currentStep < TOTAL_STEPS) showStep(++currentStep); });
+  btnBack.addEventListener("click", () => { if (currentStep > 1) showStep(--currentStep); });
+
+  const sharedCb = document.querySelector('[name="general.shared"]');
+  sharedCb?.addEventListener("change", () => {
+    document.getElementById("shared-label").textContent = sharedCb.checked ? "Ja" : "Nein";
+  });
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".cat-panel").forEach(p =>
+        p.classList.toggle("hidden", p.dataset.catPanel !== tab.dataset.cat)
+      );
+    });
+  });
+
+  document.getElementById("locate-btn")?.addEventListener("click", () => {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        document.querySelector('[name="latitude"]').value = pos.coords.latitude.toFixed(6);
+        document.querySelector('[name="longitude"]').value = pos.coords.longitude.toFixed(6);
+      },
+      () => alert("Standort konnte nicht ermittelt werden.")
+    );
+  });
+
+  document.getElementById("shelter-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    btnSubmit.textContent = "Wird gespeichert...";
+    btnSubmit.disabled = true;
+
+    const fd = new FormData(e.target);
+    const data = {};
+    const set = (obj, path, val) => {
+      const keys = path.split(".");
+      keys.reduce((cur, key, i) => {
+        if (i === keys.length - 1) cur[key] = val;
+        else cur[key] = cur[key] ?? {};
+        return cur[key];
+      }, obj);
+    };
+
+    // Unchecked checkboxes → "false"
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      if (!cb.checked && cb.name) set(data, cb.name, "false");
+    });
+
+    for (const [key, val] of fd.entries()) {
+      if (["latitude", "longitude", "title"].includes(key)) continue;
+      set(data, key, val === "on" ? "true" : val);
+    }
+
+    const payload = {
+      title: fd.get("title") || "Schutzraum",
+      data,
+      geometry: {
+        type: "point",
+        coordinates: [{
+          longitude: parseFloat(fd.get("longitude") || "0"),
+          latitude: parseFloat(fd.get("latitude") || "0"),
+          externalId: "", sortOrder: 0,
+          address: { street: "", houseNumber: "", additionalInfo: "", city: "", district: "", zipCode: "", country: "" },
+        }],
+      },
+    };
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-Key": API_KEY },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        statusEl.className = "status success";
+        statusEl.textContent = "Schutzraum erfolgreich gespeichert!";
+        e.target.reset();
+        currentStep = 1;
+        showStep(1);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        statusEl.className = "status error";
+        statusEl.textContent = `Fehler: ${err?.error ?? res.status}`;
+      }
+    } catch {
+      statusEl.className = "status error";
+      statusEl.textContent = "Netzwerkfehler – bitte erneut versuchen.";
+    } finally {
+      statusEl.classList.remove("hidden");
+      btnSubmit.textContent = "Schutzraum speichern";
+      btnSubmit.disabled = false;
+    }
+  });
+</script>

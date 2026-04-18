@@ -1,0 +1,65 @@
+---
+interface Props {
+	question: string;
+	name: string;
+	type?: "text" | "number" | "email" | "tel";
+	placeholder?: string;
+	required?: boolean;
+}
+
+const { question, name, type = "text", placeholder = "", required = false } = Astro.props;
+---
+
+<div class="question-container">
+	<h2>{question}{required && <span class="req"> *</span>}</h2>
+	<div class="input-group">
+		<input
+			type={type}
+			name={name}
+			class="answer-input"
+			placeholder={placeholder}
+			required={required}
+		/>
+	</div>
+</div>
+
+<style>
+	.question-container {
+		max-width: 600px;
+		margin: 1rem auto;
+		padding: 2rem;
+		background: rgba(255, 255, 255, 0.9);
+		border-radius: 16px;
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+		backdrop-filter: blur(5px);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		font-family: Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+	}
+	h2 {
+		margin-top: 0;
+		color: var(--d-draeger-darkblue, #111827);
+		font-size: 1.25rem;
+		margin-bottom: 1.5rem;
+	}
+	.req {
+		color: #E24B4A;
+	}
+	.input-group {
+		display: flex;
+		gap: 0.5rem;
+	}
+	input {
+		flex: 1;
+		padding: 0.75rem 1rem;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		font-size: 1rem;
+		outline: none;
+		transition: border-color 0.2s, box-shadow 0.2s;
+		font-family: inherit;
+	}
+	input:focus {
+		border-color: var(--d-draeger-airblue, #0091f7);
+		box-shadow: 0 0 0 3px rgba(0, 145, 247, 0.12);
+	}
+</style>
